@@ -1,6 +1,8 @@
 import requests
 import json
 import time
+import sys
+import pathlib
 
 
 def replace_special_chars(src):
@@ -61,13 +63,31 @@ def rss_generic(src, object_id, link_divider=None, strip_title_prefix=None, rela
     with open("%s.js" % object_id, "w") as f:
         f.write(json.dumps(articles, indent=4))
 
-rss_generic(src=requests.get("https://www.spiegel.de/schlagzeilen/tops/index.rss").text, object_id="spiegel", link_divider="#", strip_title_prefix=None, related_to="country:de")
-rss_generic(src=requests.get("https://www.heise.de/security/rss/news.rdf").text, object_id="heise-security", link_divider='?', strip_title_prefix=None, related_to="topic:it-security")
-rss_generic(src=requests.get("https://www.aachener-zeitung.de/lokales/region-aachen/aachen/rss/").text, object_id="aachener-nachrichten-aachen", link_divider=None, strip_title_prefix="CDATA", related_to="geo:50.774536031739515:6.083623744229666")
-rss_generic(src=requests.get("https://www.aachener-zeitung.de/lokales/region-aachen/herzogenrath/rss/").text, object_id="aachener-nachrichten-herzogenrath", link_divider=None, strip_title_prefix="CDATA", related_to="geo:50.86049020348183:6.083922990502097")
-rss_generic(src=requests.get("https://rp-online.de/nrw/staedte/grevenbroich/feed.rss").text, object_id="rp-grevenbroich", link_divider=None, strip_title_prefix=None, related_to="geo:51.18267853983402:6.581391111751763")
-rss_generic(src=requests.get("https://rp-online.de/feed.rss").text, object_id="rp", link_divider=None, strip_title_prefix=None, related_to="country:de")
-rss_generic(src=requests.get("https://rss.sueddeutsche.de/alles").text, object_id="sueddeutsche", link_divider=None, strip_title_prefix="CDATA", related_to="country:de")
-rss_generic(src=requests.get("https://www.stern.de/feed/standard/all/").text, object_id="stern", link_divider='?', strip_title_prefix=None, related_to="country:de")
-rss_generic(src=requests.get("http://www.bild.de/rss-feeds/rss-16725492,feed=news.bild.html").text, object_id="bild-news", link_divider=None, strip_title_prefix="CDATA", related_to="country:de")
-rss_generic(src=requests.get("https://www.tagesschau.de/infoservices/alle-meldungen-100~rss2.xml").text, object_id="tagesschau", link_divider=None, strip_title_prefix=None, related_to="country:de")
+
+def generic_urlgrab(jsonfilename, dialect):
+    data = json.loads(pathlib.Path(jsonfilename).read_text())
+    for artcl in data:
+        print(artcl["link"])
+        break
+
+
+if len(sys.argv) == 1:
+    print("Run with 'update' or 'upgrade'.")
+    sys.exit(0)
+
+
+if sys.argv[1] == "update":
+    rss_generic(src=requests.get("https://www.spiegel.de/schlagzeilen/tops/index.rss").text, object_id="spiegel", link_divider="#", strip_title_prefix=None, related_to="country:de")
+    rss_generic(src=requests.get("https://www.heise.de/security/rss/news.rdf").text, object_id="heise-security", link_divider='?', strip_title_prefix=None, related_to="topic:it-security")
+    rss_generic(src=requests.get("https://www.aachener-zeitung.de/lokales/region-aachen/aachen/rss/").text, object_id="aachener-nachrichten-aachen", link_divider=None, strip_title_prefix="CDATA", related_to="geo:50.774536031739515:6.083623744229666")
+    rss_generic(src=requests.get("https://www.aachener-zeitung.de/lokales/region-aachen/herzogenrath/rss/").text, object_id="aachener-nachrichten-herzogenrath", link_divider=None, strip_title_prefix="CDATA", related_to="geo:50.86049020348183:6.083922990502097")
+    rss_generic(src=requests.get("https://rp-online.de/nrw/staedte/grevenbroich/feed.rss").text, object_id="rp-grevenbroich", link_divider=None, strip_title_prefix=None, related_to="geo:51.18267853983402:6.581391111751763")
+    rss_generic(src=requests.get("https://rp-online.de/feed.rss").text, object_id="rp", link_divider=None, strip_title_prefix=None, related_to="country:de")
+    rss_generic(src=requests.get("https://rss.sueddeutsche.de/alles").text, object_id="sueddeutsche", link_divider=None, strip_title_prefix="CDATA", related_to="country:de")
+    rss_generic(src=requests.get("https://www.stern.de/feed/standard/all/").text, object_id="stern", link_divider='?', strip_title_prefix=None, related_to="country:de")
+    rss_generic(src=requests.get("http://www.bild.de/rss-feeds/rss-16725492,feed=news.bild.html").text, object_id="bild-news", link_divider=None, strip_title_prefix="CDATA", related_to="country:de")
+    rss_generic(src=requests.get("https://www.tagesschau.de/infoservices/alle-meldungen-100~rss2.xml").text, object_id="tagesschau", link_divider=None, strip_title_prefix=None, related_to="country:de")
+
+
+if sys.argv[1] == "upgrade":
+    generic_urlgrab('aachener-nachrichten-aachen.js', 'aachener-nachrichten')

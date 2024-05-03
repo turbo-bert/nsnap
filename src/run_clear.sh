@@ -1,4 +1,4 @@
 #!/bin/bash
 
 
-vp -m nsnap
+rm -f *.js
